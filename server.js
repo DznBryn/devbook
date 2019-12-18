@@ -1,11 +1,23 @@
 const express = require('express');
 const app = express();
+const connectDB = require('./config/db');
 
 const PORT = process.env.PORT || 3003;
+
+connectDB();
+
+// Init Middleware
+app.use(express.json({ extended: false }));
 
 app.get('/', (req, res) => {
 	res.send('API Running');
 });
+
+// Define Routes
+app.use('/api/users', require('./routers/api/users'));
+app.use('/api/profile', require('./routers/api/profile'));
+app.use('/api/post', require('./routers/api/post'));
+app.use('/api/auth', require('./routers/api/auth'));
 
 app.listen(PORT, () => {
 	console.log(`> Ready on port ${PORT}`);
