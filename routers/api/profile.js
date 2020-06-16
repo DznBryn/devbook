@@ -126,7 +126,7 @@ router.get('/', async (req, res) => {
 	try {
 		console.log('Display all user profiles...');
 		const profiles = await Profile.find().populate('user', ['name', 'avatar']);
-		res.json({ profiles });
+		res.json(profiles);
 	} catch (error) {
 		console.error(error.message);
 		res.status(500).send('Server Error!');

@@ -5,7 +5,8 @@ import {
 	USER_AUTH_ERROR,
 	LOGIN_SUCCESS,
 	LOGIN_FAIL,
-	LOGOUT
+	LOGOUT,
+	CLEAR_PROFILE
 } from '../actions/consts';
 
 const intialState = {
@@ -45,7 +46,13 @@ export default function(state = intialState, action) {
 				isAuthenticated: false,
 				loading: false
 			};
-
+		case CLEAR_PROFILE:
+			return {
+				...state,
+				profile: null,
+				repos: [],
+				loading: false
+			};
 		default:
 			return state;
 	}
