@@ -12,7 +12,7 @@ import Register from './components/auth/Register';
 import Login from './components/auth/Login';
 import Alert from './components/layout/Alert';
 import Dashboard from './components/dashboard/Dashboard';
-import CreateProfile from './components/profile-forms/CreateProfile';
+
 import EditProfile from './components/profile-forms/EditProfile';
 import AddExperience from './components/profile-forms/AddExperience';
 import AddEducation from './components/profile-forms/AddEducation';
@@ -51,7 +51,7 @@ const App = () => {
 							<PrivateRoute
 								exact
 								path='/create-profile'
-								component={CreateProfile}
+								component={EditProfile}
 							/>
 							<PrivateRoute
 								exact

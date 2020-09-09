@@ -4,7 +4,7 @@ const config = require('config');
 const router = express.Router();
 const auth = require('../../middleware/auth');
 const { check, validationResult } = require('express-validator');
-
+const normalize = require('normalize-url');
 const Profile = require('../../models/Profile');
 const User = require('../../models/User');
 
@@ -15,7 +15,7 @@ const User = require('../../models/User');
 router.get('/me', auth, async (req, res) => {
 	try {
 		const profile = await Profile.findOne({
-			user: req.user.id
+			user: req.user.id,
 		}).populate('user', ['name', 'avatar']);
 
 		if (!profile) {
@@ -39,13 +39,9 @@ router.post(
 	[
 		auth,
 		[
-			check('status', 'Status required')
-				.not()
-				.isEmpty(),
-			check('skills', 'Skills required')
-				.not()
-				.isEmpty()
-		]
+			check('status', 'Status required').not().isEmpty(),
+			check('skills', 'Skills required').not().isEmpty(),
+		],
 	],
 	async (req, res) => {
 		const errors = validationResult(req);
@@ -59,62 +55,63 @@ router.post(
 			location,
 			bio,
 			status,
-			githubUserName,
+			github,
 			skills,
 			youtube,
 			twitch,
 			twitter,
 			facebook,
 			linkedin,
-			instagram
+			instagram,
 		} = req.body;
 
 		// Build profile object
-		const profileFields = {};
-		profileFields.user = req.user.id;
-		if (company) profileFields.company = company;
-		if (website) profileFields.website = website;
-		if (location) profileFields.location = location;
-		if (bio) profileFields.bio = bio;
-		if (status) profileFields.status = status;
-		if (githubUserName) profileFields.githubUserName = githubUserName;
-		if (skills) {
-			profileFields.skills = skills.split(',').map((skill) => skill.trim());
+		const profileFields = {
+			user: req.user.id,
+			company,
+			location,
+			website:
+				website && website !== ''
+					? normalize(website, { forceHttps: true })
+					: '',
+			bio,
+			skills: Array.isArray(skills)
+				? skills
+				: skills.split(',').map((skill) => ' ' + skill.trim()),
+			status,
+			github,
+		};
+
+		const social = { youtube, twitch, twitter, facebook, linkedin, instagram };
+
+		for (const [key, value] of Object.entries(social)) {
+			if (value && value.length > 0) {
+				social[key] = normalize(value, { forceHttps: true });
+			}
 		}
 
-		profileFields.social = {};
-		if (youtube) profileFields.social.youtube = youtube;
-		if (twitch) profileFields.social.twitch = twitch;
-		if (twitter) profileFields.social.twitter = twitter;
-		if (facebook) profileFields.social.facebook = facebook;
-		if (linkedin) profileFields.social.linkedin = linkedin;
-		if (instagram) profileFields.social.instagram = instagram;
-
+		profileFields.social = social;
 		// Update user profile
 		try {
-			let profile = await Profile.findOne({ user: req.user.id });
-			if (profile) {
-				// Update
-				profile = await Profile.findOneAndUpdate(
-					{ user: req.user.id },
-					{ $set: profileFields },
-					{ new: true }
-				);
+			let profile = await Profile.findOneAndUpdate(
+				{ user: req.user.id },
+				{ $set: profileFields },
+				{ new: true, upsert: true, setDefaultsOnInsert: true }
+			);
 
-				console.log('User Profile updated.');
-				return res.json(profile);
-			}
+			console.log('User Profile updated.');
+			res.json(profile);
 		} catch (error) {
 			console.error(error.message);
 			res.status(500).send('Server Error!');
 		}
 
-		// Create user profile
-		profile = new Profile(profileFields);
+		// // Create user profile
+		// profile = new Profile(profileFields);
 
-		await profile.save();
-		console.log('User Profile created.');
-		res.json(profile);
+		// await profile.save();
+		// console.log('User Profile created.');
+		// res.json(profile);
 	}
 );
 
@@ -141,7 +138,7 @@ router.get('/user/:id', async (req, res) => {
 	try {
 		console.log('Display user profile by ID...');
 		const profile = await Profile.findOne({
-			user: req.params.id
+			user: req.params.id,
 		}).populate('user', ['name', 'avatar']);
 
 		if (!profile) {
@@ -185,16 +182,10 @@ router.put(
 	[
 		auth,
 		[
-			check('title', 'Title is required')
-				.not()
-				.isEmpty(),
-			check('company', 'Company is required')
-				.not()
-				.isEmpty(),
-			check('from', 'From date is required')
-				.not()
-				.isEmpty()
-		]
+			check('title', 'Title is required').not().isEmpty(),
+			check('company', 'Company is required').not().isEmpty(),
+			check('from', 'From date is required').not().isEmpty(),
+		],
 	],
 	async (req, res) => {
 		const error = validationResult(req);
@@ -209,7 +200,7 @@ router.put(
 			from,
 			to,
 			current,
-			description
+			description,
 		} = req.body;
 
 		const newExperience = {
@@ -219,7 +210,7 @@ router.put(
 			from,
 			to,
 			current,
-			description
+			description,
 		};
 
 		try {
@@ -270,19 +261,11 @@ router.put(
 	[
 		auth,
 		[
-			check('school', 'School is required')
-				.not()
-				.isEmpty(),
-			check('degree', 'Degree is required')
-				.not()
-				.isEmpty(),
-			check('fieldOfStudy', 'Field Of Study is required')
-				.not()
-				.isEmpty(),
-			check('from', 'From date is required')
-				.not()
-				.isEmpty()
-		]
+			check('school', 'School is required').not().isEmpty(),
+			check('degree', 'Degree is required').not().isEmpty(),
+			check('fieldOfStudy', 'Field Of Study is required').not().isEmpty(),
+			check('from', 'From date is required').not().isEmpty(),
+		],
 	],
 	async (req, res) => {
 		const error = validationResult(req);
@@ -297,7 +280,7 @@ router.put(
 			from,
 			to,
 			current,
-			description
+			description,
 		} = req.body;
 
 		const newEducation = {
@@ -307,7 +290,7 @@ router.put(
 			from,
 			to,
 			current,
-			description
+			description,
 		};
 
 		try {
@@ -357,11 +340,9 @@ router.get('/github/:username', (req, res) => {
 		const option = {
 			uri: `https://api.github.com/users/${
 				req.params.username
-			}/repos?per_page=5:asc&client_id=${config.get(
-				'githubSercet'
-			)}&client_secret=${config.get('githubClientId')}`,
+			}/repos?per_page=5:asc&client_id=${config.get('githubSercet')}&client_secret=${config.get('githubClientId')}`,
 			method: 'GET',
-			headers: { 'user-agent': 'node.js' }
+			headers: { 'user-agent': 'node.js' },
 		};
 
 		request(option, (error, response, body) => {
