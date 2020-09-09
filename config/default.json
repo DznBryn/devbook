@@ -1,5 +1,5 @@
 {
-	"mongoURI": "mongodb+srv://brian:41785613thJuly@tsgdb-esx58.mongodb.net/test?retryWrites=true&w=majority",
+	"mongoURI": "mongodb+srv://dn-brian:3nAIxwZOKr47ruDw@devconn.zagmf.mongodb.net/DevConn?retryWrites=true&w=majority",
 	"jwt_sercet": "sercetKey",
 	"githubClientId": "19d79cd1131f88b5a209",
 	"githubSercet": "06c37a763c965bcd9bb5c231fc1463fdf3cd5724"
