@@ -29,7 +29,7 @@
 		"gravatar": "^1.8.0",
 		"jsonwebtoken": "^8.5.1",
 		"mongoose": "^5.7.12",
-		"normalize-url": "^5.1.0",
+		"normalize-url": "^5.3.1",
 		"request": "^2.88.0",
 		"uuid": "^3.3.3"
 	},
